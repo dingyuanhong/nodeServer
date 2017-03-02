@@ -28,11 +28,39 @@ function servError(res){
   res.end();
 }
 
+function _readFile(req,res,pathname,lastModified,cacheTime){
+  var header = {};
+  if(lastModified !== undefined){
+    header["Last-Modified"] = lastModified;
+  }
+  if(cacheTime !== undefined){
+    if(typeof cacheTime === 'number'){
+      header['Cache-Control'] = 'max-age=' + cacheTime;
+    }else{
+      header['Cache-Control'] = cacheTime;
+    }
+  }else{
+    header['Cache-Control'] = 'no-cache';
+  }
+  var states = fs.statSync(pathname);
+  header['Content-length'] = states.size;
+  res.writeHead(200,'Ok',header);
+  //传输数据
+  var raw = fs.createReadStream(pathname);
+  raw.pipe(res);
+}
+
 //读取文件
 function readFile(req,res,pathname,cacheTime){
 	//获取文件属性
   fs.stat(pathname,function(err,stat)
   {
+    //未使用缓存
+    if(cacheTime === 0){
+      _readFile(req,res,pathname);
+      return;
+    }
+    //检查catch时间是否过期
     var noCheck = false;
     var lastModified = '';
     if(cacheTime > 0){
@@ -41,17 +69,10 @@ function readFile(req,res,pathname,cacheTime){
       lastModified = stat.mtime.toUTCString();
     }
     //检查时间是否过期
-    if(req.headers["if-modified-since"] && (noCheck == true || lastModified === req.headers['if-modified-since'])){
+    if(req.headers["if-modified-since"] && (noCheck === true || lastModified === req.headers['if-modified-since'])){
       notModified(res);
     }else{
-      // console.log(pathname +' ' + lastModified);
-      res.writeHead(200,'Ok',{
-        'Last-Modified':lastModified,
-        'Cache-Control':'max-age=' + cacheTime
-      });
-      //传输数据
-      var raw = fs.createReadStream(pathname);
-      raw.pipe(res);
+      _readFile(req,res,pathname,lastModified,cacheTime);
     }
   });
 };
@@ -185,12 +206,34 @@ function RequestProcess(req,res){
     }
     else{
       notFound(res,pathname);
+	  console.log("error:" + pathname);
     }
   }
   else{
     notFound(res,pathname);
+	console.log("error:" + pathname);
   }
 };
+
+
+function GetLocalIPS(){
+	var os = require('os');  
+	var net = os.networkInterfaces();
+	var addrList = [];
+	for (var value in net) {
+		var obj = net[value];
+		for(var index in obj){
+			var addr = obj[index];
+			if(addr.family=='IPv4'){
+				var IPv4=addr.address;
+				addrList.push(IPv4);
+			}  
+		}
+	}
+	return addrList;
+}
+
+conf.host = GetLocalIPS();
 
 //开启服务器
 if(typeof conf.host === 'object'){
