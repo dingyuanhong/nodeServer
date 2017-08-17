@@ -117,7 +117,9 @@ var process = function(req,res,param)
   else if(req.method.toUpperCase() == 'POST'){
     //上传文件
     if(pathname == '/upload'){
+			console.log("req:headers:");
 			console.log(req.headers);
+			console.log("req:rawHeaders:");
 			console.log(req.rawHeaders);
       multipart(req,res,function(err){
 				upload.process(req,res,{"name":publishName,"path":publishPath,"parent":publishDir},err);
