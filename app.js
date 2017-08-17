@@ -217,7 +217,7 @@ function RequestProcess(req,res){
 
 
 function GetLocalIPS(){
-	var os = require('os');  
+	var os = require('os');
 	var net = os.networkInterfaces();
 	var addrList = [];
 	for (var value in net) {
@@ -227,7 +227,7 @@ function GetLocalIPS(){
 			if(addr.family=='IPv4'){
 				var IPv4=addr.address;
 				addrList.push(IPv4);
-			}  
+			}
 		}
 	}
 	return addrList;

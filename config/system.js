@@ -1,30 +1,37 @@
 var Configure = {
   'port':80,
-  'host':['192.168.0.119',"127.0.0.1"],
-  'webroot':'./../3Dgl/',
+  'host':["127.0.0.1"],
+  'webroot':'./../webGL/',
   'defaultPage':'index.html',
-  'res_ext':['.html','.htm','.js','.css',
+  'res':{
+		"ext":['.html','.htm','.js','.css','.json',
 			'.icns','.ico','.bmp','.jpg','.png','.ttf','.tif',
 			'.woff',
 			'.wma','.mp3',
-			'.mp4','.rmvb','.mkv'
-			],
-  'cache_ext':['.mp4'],
-  'cache_time':[24*60*60],
-  'bus_ext':['.do'],
+			'.mp4','.rmvb','.mkv',
+			'.flv']
+
+	},
+  'cache':{
+		"ext":['.mp4'],
+		time:[24*60*60]
+	},
+  'bus':{
+			"ext":['.do']
+	},
 
   isResource: function (ext)
   {
-    if(this.res_ext.indexOf(ext) >= 0) return true;
+    if(this.res.ext.indexOf(ext) >= 0) return true;
     else return false;
   },
   isBus:function(ext){
-    if(this.bus_ext.indexOf(ext) >= 0) return true;
+    if(this.bus.ext.indexOf(ext) >= 0) return true;
     else return false;
   },
   getCacheTime:function(ext){
-    var index = this.cache_ext.indexOf(ext);
-    if(index >= 0) return this.cache_time[index];
+    var index = this.cache.ext.indexOf(ext);
+    if(index >= 0) return this.cache.time[index];
     else return 0;
   }
 };
