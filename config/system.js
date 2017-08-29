@@ -1,10 +1,10 @@
 var Configure = {
   'port':80,
   'host':["127.0.0.1"],
-  'webroot':'./../webGL/',
+  'webroot':'./../webGLTest/',
   'defaultPage':'index.html',
   'res':{
-		"ext":['.html','.htm','.js','.css','.json',
+		"ext":['.html','.htm','.js','.css','.json','.glsl',
 			'.icns','.ico','.bmp','.jpg','.png','.ttf','.tif',
 			'.woff',
 			'.wma','.mp3',
