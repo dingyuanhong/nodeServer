@@ -128,17 +128,17 @@ var process = function(req,res,param)
       });
     }
     else{
-			res.writeHead(404,'Request Not Found');
+			res.writeHead(404,'POST Request type is not supported');
 			res.end();
 
-			console.log("404 Error:(Request Not Found)" + pathname);
+			console.log("404 Error:(POST Request type is not supported)" + pathname);
     }
   }
   else{
-		res.writeHead(404,'Request Not Found');
+		res.writeHead(404,'Request type is not supported');
 		res.end();
 
-		console.log("404 Error:(Request Not Found)" + pathname);
+		console.log("404 Error:(Request type is not supported)" + pathname);
   }
 }
 
