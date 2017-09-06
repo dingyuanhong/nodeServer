@@ -2,34 +2,121 @@ var fs = require('fs')
 var path = require('path')
 var MIME = require('./mime.js');
 
+function readRangeHeader(range, totalLength) {
+        /*
+         * Example of the method &apos;split&apos; with regular expression.
+         * 
+         * Input: bytes=100-200
+         * Output: [null, 100, 200, null]
+         * 
+         * Input: bytes=-200
+         * Output: [null, null, 200, null]
+         */
+
+    if (range == null || range.length == 0)
+        return null;
+
+    var array = range.split(/bytes=([0-9]*)-([0-9]*)/);
+    var start = parseInt(array[1]);
+    var end = parseInt(array[2]);
+    var result = {
+        Start: isNaN(start) ? 0 : start,
+        End: isNaN(end) ? (totalLength - 1) : end
+    };
+    
+    if (!isNaN(start) && isNaN(end)) {
+        result.Start = start;
+        result.End = totalLength - 1;
+    }
+
+    if (isNaN(start) && !isNaN(end)) {
+        result.Start = totalLength - end;
+        result.End = totalLength - 1;
+    }
+
+    return result;
+}
+
 function sendResource(req,res,param)
 {
 	var filepath = param.path;
 
-  var header = {};
-  if(param.lastModifiedTime !== undefined){
-    header["Last-Modified"] = param.lastModifiedTime;
-  }
-  if(param.cache !== undefined){
-    if(typeof param.cache === 'number'){
-      header['Cache-Control'] = 'max-age=' + param.cache;
-    }else{
-      header['Cache-Control'] = param.cache;
-    }
-  }else{
-    header['Cache-Control'] = 'no-cache';
-  }
-  var states = fs.statSync(filepath);
-  header['Content-length'] = states.size;
-  var mime = MIME.mime(filepath);
-  if(mime != null)
-  {
+	var header = {};
+	if(param.lastModifiedTime !== undefined){
+		header["Last-Modified"] = param.lastModifiedTime;
+	}
+	if(param.cache !== undefined){
+	if(typeof param.cache === 'number'){
+		header['Cache-Control'] = 'max-age=' + param.cache;
+	}else{
+		header['Cache-Control'] = param.cache;
+	}
+	}else{
+		header['Cache-Control'] = 'no-cache';
+	}
+	var states = fs.statSync(filepath);
+	
+	var mime = MIME.mime(filepath);
+	if(mime != null)
+	{
 	  header['Content-Type'] = mime + ";";
-  }
+	}
 	// header['Content-Type'] += "charset=utf-8";
-  res.writeHead(200,'Ok',header);
+
+	if(req.headers['range'] != undefined)
+	{
+		var rangeRequest = readRangeHeader(req.headers['range'],states.size);
+		if(rangeRequest == null)
+		{
+			header['Accept-Ranges'] = 'bytes';
+			header['Content-length'] = states.size;
+			res.writeHead(200,header);
+		}
+		else
+		{
+			var start = rangeRequest.Start;
+			var end = rangeRequest.End;
+			if (start >= states.size || end >= states.size) {
+				header['Content-Range'] = 'bytes */' + states.size; // File size.
+				res.writeHead(416,header);
+				res.end();
+				return;
+			}
+			else
+			{
+				header['Content-Range'] = 'bytes ' + start + '-' + end + '/' + states.size;
+				header['Content-Length'] = start == end ? 0 : (end - start + 1);
+				header['Accept-Ranges'] = 'bytes';
+				header['Cache-Control'] = 'no-cache';
+				res.writeHead(206,header);
+				
+				var readable = fs.createReadStream(filepath, { 'start': start, 'end': end });
+				if(readable == null)
+				{
+					res.end();
+				}else
+				{
+					readable.pipe(res);
+				}
+				return ;
+			}
+		}
+	}
+	else
+	{
+		header['Content-length'] = states.size;
+		res.writeHead(200,'Ok',header);
+	}
 	//传输数据
-	fs.createReadStream(filepath).pipe(res);
+	var readable = fs.createReadStream(filepath);
+	if(readable == null)
+	{
+		res.end();
+	}
+	else
+	{
+		readable.pipe(res);
+	}
 }
 
 function checkSendResource(req,res,param)
