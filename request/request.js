@@ -1,5 +1,6 @@
 var fs = require('fs')
 var path = require('path')
+var MIME = require('./mime.js');
 
 function sendResource(req,res,param)
 {
@@ -20,8 +21,12 @@ function sendResource(req,res,param)
   }
   var states = fs.statSync(filepath);
   header['Content-length'] = states.size;
-	// header['Content-Type'] = "text/plain;charset=utf-8";
-	// header['Content-Type'] = "charset=utf-8";
+  var mime = MIME.mime(filepath);
+  if(mime != null)
+  {
+	  header['Content-Type'] = mime + ";";
+  }
+	// header['Content-Type'] += "charset=utf-8";
   res.writeHead(200,'Ok',header);
 	//传输数据
 	fs.createReadStream(filepath).pipe(res);
