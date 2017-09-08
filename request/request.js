@@ -124,22 +124,24 @@ function checkSendResource(req,res,param)
 	var filepath = param.path;
 	fs.exists(filepath,function(exists){
 		if(exists){
-			if(param.lastModified !== undefined && param.lastModified === true)
+			if(req.headers['range'] == undefined && param.lastModified !== undefined && param.lastModified === true)
 			{
 				//获取文件属性
-			  fs.stat(filepath,function(err,stat)
+				fs.stat(filepath,function(err,stat)
 				{
 					var lastModifiedTime = stat.mtime.toUTCString();
 					if(req.headers["if-modified-since"] && lastModifiedTime === req.headers['if-modified-since']){
 						res.writeHead(304,'Resource Not Modified');
-					  res.end();
-			    }else{
+						res.end();
+					}else{
 						param.lastModifiedTime = lastModifiedTime;
-			      sendResource(req,res,param);
-			    }
+						sendResource(req,res,param);
+					}
 				});
-			}else {
-					sendResource(req,res,param);
+			}
+			else 
+			{
+				sendResource(req,res,param);
 			}
 		}else{
 			console.log("404 Resource not found!(" + filepath);
