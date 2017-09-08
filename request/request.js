@@ -55,6 +55,7 @@ function sendResource(req,res,param)
 		header['Cache-Control'] = 'no-cache';
 	}
 	var states = fs.statSync(filepath);
+	header["Last-Modified"] = states.mtime.toUTCString();
 	
 	var mime = MIME.mime(filepath);
 	if(mime != null)
@@ -62,10 +63,13 @@ function sendResource(req,res,param)
 	  header['Content-Type'] = mime + ";";
 	}
 	// header['Content-Type'] += "charset=utf-8";
-
+	
+	//req.headers['range'] = undefined;
 	if(req.headers['range'] != undefined)
 	{
 		var rangeRequest = readRangeHeader(req.headers['range'],states.size);
+		//console.log(req.headers['range']);
+		//console.log(rangeRequest);
 		if(rangeRequest == null)
 		{
 			header['Accept-Ranges'] = 'bytes';
@@ -87,7 +91,6 @@ function sendResource(req,res,param)
 				header['Content-Range'] = 'bytes ' + start + '-' + end + '/' + states.size;
 				header['Content-Length'] = start == end ? 0 : (end - start + 1);
 				header['Accept-Ranges'] = 'bytes';
-				header['Cache-Control'] = 'no-cache';
 				res.writeHead(206,header);
 				
 				var readable = fs.createReadStream(filepath, { 'start': start, 'end': end });
@@ -124,7 +127,7 @@ function checkSendResource(req,res,param)
 	var filepath = param.path;
 	fs.exists(filepath,function(exists){
 		if(exists){
-			if(req.headers['range'] == undefined && param.lastModified !== undefined && param.lastModified === true)
+			if(param.lastModified !== undefined && param.lastModified === true)
 			{
 				//获取文件属性
 				fs.stat(filepath,function(err,stat)
