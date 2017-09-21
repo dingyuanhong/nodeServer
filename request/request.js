@@ -124,6 +124,11 @@ function sendResource(req,res,param)
 
 function checkSendResource(req,res,param)
 {
+	//console.log(req.headers);
+	//console.log(req.url);
+	//console.log(req.method);
+	//console.log(req.upgrade);
+			
 	var filepath = param.path;
 	fs.exists(filepath,function(exists){
 		if(exists){
@@ -148,7 +153,7 @@ function checkSendResource(req,res,param)
 			}
 		}else{
 			console.log("404 Resource not found!(" + filepath);
-
+			
 			res.writeHead(404,'Resource Not Found');
 		  res.end();
 		}

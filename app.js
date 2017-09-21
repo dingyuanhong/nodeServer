@@ -49,6 +49,38 @@ function GetLocalIPS(){
 
 conf.host = GetLocalIPS();
 
+var args = process.argv.splice(2)
+//console.log(args);
+for(var i = 0; i < args.length;i++)
+{
+	if(i+1 < args.length){
+		if(args[i] == '-r')
+		{
+			conf.webroot = args[i+1];
+			console.log("configure root:" + conf.webroot);
+		}else if(args[i] == '-p')
+		{
+			var port = parseInt(args[i+1]);
+			if(typeof port === 'number' && 
+				!isNaN(port) && 
+				port > 0 && port <= 65535)
+			{
+				conf.port = port;
+				console.log("configure port:" + conf.port);
+			}
+		}
+		i++;
+	}else{
+		break;
+	}
+}
+
+if(conf.webroot.length == 0)
+{
+	console.log("please configure root used -i");
+	return;
+}
+
 //开启服务器
 if(typeof conf.host === 'object'){
 	for(var i = 0 ; i < conf.host.length;i++){
