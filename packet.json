@@ -1,0 +1,21 @@
+{
+  "name": "nodeServr",
+  "version": "0.0.0",
+  "description": "",
+  "main": "app.js",
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "body-parser": "latest",
+    "connect": "latest",
+    "connect-multiparty": "latest",
+    "http": "latest",
+    "https": "latest",
+    "JSON": "latest",
+    "path": "latest",
+    "querystring": "latest"
+  },
+  "devDependencies": {
+    //"eslint": "latest"
+  },
+}
