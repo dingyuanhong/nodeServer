@@ -4,12 +4,15 @@ var Configure = {
   'webroot':'',
   'defaultPage':'index.html',
   'res':{
-		"ext":['.html','.htm','.js','.css','.json','.glsl',
+		"ext":[
+			'.html','.htm','.js','.css',
+			'.json','.glsl','.vert','.frag',
 			'.icns','.ico','.bmp','.jpg','.png','.ttf','.tif',
 			'.woff','.swf','.xml',
 			'.wma','.mp3',
-			'.mp4','.rmvb','.mkv',
-			'.flv']
+			'.mp4','.rmvb','.mkv','.flv',
+			".bin",".mtl",".obj"
+			]
 
 	},
   'cache':{
