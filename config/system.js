@@ -11,7 +11,8 @@ var Configure = {
 			'.woff','.swf','.xml',
 			'.wma','.mp3',
 			'.mp4','.rmvb','.mkv','.flv',
-			".bin",".mtl",".obj"
+			".bin",".mtl",".obj",
+			".txt"
 			]
 
 	},
